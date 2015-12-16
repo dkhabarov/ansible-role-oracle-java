@@ -1,0 +1,23 @@
+---
+
+- name: add repository for oracle java
+  apt_repository: 
+    repo: 'ppa:webupd8team/java'
+  when: ansible_distribution == 'Ubuntu'
+  tags: app_add_webupd8team_repo
+
+- name: Accept Oracle license prior JDK installation
+  debconf: 
+    name: 'oracle-java{{ oracle_java_version }}-installer' 
+    question: 'shared/accepted-oracle-license-v1-1' 
+    value: 'true' 
+    vtype: 'select'
+  when: ansible_os_family == 'Debian'
+
+- name: "install java {{ oracle_java_version }} and setup variables"
+  apt: 
+    name: "{{ item }}"
+  with_items:
+      - "oracle-java{{ oracle_java_version }}-installer"
+      - "oracle-java{{ oracle_java_version }}-set-default"
+  when: ansible_os_family == 'Debian'
